@@ -12,7 +12,7 @@ import lombok.Getter;
 public class Country {
     @Id
     @JsonIgnore
-    private long id;
+    private Long id;
     private String name;
     private String alpha2;
     private String alpha3;

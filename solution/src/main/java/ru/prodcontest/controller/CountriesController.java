@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.prodcontest.dto.NotFoundDTO;
+import ru.prodcontest.dto.ReasonedError;
 import ru.prodcontest.entity.Country;
 import ru.prodcontest.repository.CountryRepository;
 
@@ -25,16 +25,17 @@ public class CountriesController {
     public List<Country> countries(@RequestParam(required = false) String region) {
         if (region == null) {
             return (List<Country>) countryRepository.findAll();
-        } else {
-            return countryRepository.findCountriesByRegion(region);
         }
+
+        return countryRepository.findCountriesByRegion(region);
     }
 
     @GetMapping("/countries/{code}")
     public ResponseEntity<?> countryByAlpha2Code(@PathVariable String code) {
         Optional<Country> country = countryRepository.findCountryByAlpha2(code);
+
         if (country.isEmpty())
-            return new ResponseEntity<>(new NotFoundDTO("invalid country code"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ReasonedError("invalid country code"), HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(country.get(), HttpStatus.OK);
     }
 }

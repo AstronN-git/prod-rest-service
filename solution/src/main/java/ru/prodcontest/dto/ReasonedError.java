@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class NotFoundDTO {
+public class ReasonedError extends Throwable {
     private String reason;
 }
