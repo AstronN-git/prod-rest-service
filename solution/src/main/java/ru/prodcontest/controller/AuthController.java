@@ -28,7 +28,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        System.out.println("here");
         ReasonedError e;
         if ((e = validateUser(user)) != null) {
             return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
