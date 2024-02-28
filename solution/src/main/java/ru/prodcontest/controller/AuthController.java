@@ -40,8 +40,14 @@ public class AuthController {
 
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         userRepository.save(user);
-        return new ResponseEntity<>(new UserWithoutPassword(user.getLogin(), user.getEmail(),
-                user.getCountryCode(), user.getIsPublic(), user.getPhone(), user.getImage()), HttpStatus.CREATED);
+        return new ResponseEntity<>(new UserWithoutPassword(
+                new UserWithoutPassword.Profile(
+                        user.getLogin(),
+                        user.getEmail(),
+                        user.getCountryCode(),
+                        user.getIsPublic(),
+                        user.getPhone(),
+                        user.getImage())), HttpStatus.CREATED);
     }
 
     ReasonedError validateUser(User user) {
