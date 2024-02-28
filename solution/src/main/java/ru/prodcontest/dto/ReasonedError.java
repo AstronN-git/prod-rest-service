@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class ReasonedError extends Throwable {
+public class ReasonedError {
     private String reason;
 }
