@@ -22,8 +22,12 @@ public class CountriesController {
     }
 
     @GetMapping("/countries")
-    public List<Country> countries() {
-        return (List<Country>) countryRepository.findAll();
+    public List<Country> countries(@RequestParam(required = false) String region) {
+        if (region == null) {
+            return (List<Country>) countryRepository.findAll();
+        } else {
+            return countryRepository.findCountriesByRegion(region);
+        }
     }
 
     @GetMapping("/countries/{code}")
