@@ -1,5 +1,6 @@
 package ru.prodcontest.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -10,6 +11,7 @@ import lombok.Getter;
 @Getter
 public class Country {
     @Id
+    @JsonIgnore
     private long id;
     private String name;
     private String alpha2;
