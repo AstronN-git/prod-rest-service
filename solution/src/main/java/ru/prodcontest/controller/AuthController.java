@@ -81,7 +81,7 @@ public class AuthController {
 
         var user = (User) userService.userDetailsService().loadUserByUsername(authenticationRequest.getLogin());
 
-        String jwtToken = jwtService.generateAuthToken(user.getUsername());
+        String jwtToken = jwtService.generateAuthToken(user.getUsername(), authenticationRequest.getPassword());
         return new ResponseEntity<>(new JwtAuthenticationResponse(jwtToken), HttpStatus.OK);
     }
 

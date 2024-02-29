@@ -17,32 +17,36 @@ public class JwtService {
     @Value("${security.jwt.secret}")
     private String secret;
 
-    public String generateAuthToken(String username) {
+    public String generateAuthToken(String username, String password) {
         Calendar date = Calendar.getInstance();
         date.add(Calendar.HOUR, 1);
         return Jwts.builder().subject(username)
+                .claim("password", password)
                 .expiration(date.getTime()).signWith(getSecretKey()).compact();
     }
 
-    @SuppressWarnings("unused")
     public String getUsernameFromToken(String token) {
-        if (!isTokenValid(token)) return null;
+        if (isTokenInvalid(token)) return null;
         var jwt = Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token);
         return jwt.getPayload().getSubject();
     }
 
-    private boolean isTokenValid(String token) {
+    public String getPasswordFromToken(String token) {
+        if (isTokenInvalid(token)) return null;
+        var jwt = Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token);
+        return (String) jwt.getPayload().get("password");
+    }
+
+    private boolean isTokenInvalid(String token) {
         try {
             var jwt = Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token);
-            return !isTokenExpired(jwt.getPayload());
+            return isTokenExpired(jwt.getPayload());
         } catch (JwtException e) {
             return false;
         }
     }
 
     private boolean isTokenExpired(Claims token) {
-        System.out.println(Calendar.getInstance().getTime());
-        System.out.println(token.getExpiration());
         return !Calendar.getInstance().getTime().before(token.getExpiration());
     }
 
