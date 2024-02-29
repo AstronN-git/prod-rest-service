@@ -1,19 +1,23 @@
 package ru.prodcontest.controller;
 
-import org.hibernate.PropertyValueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.prodcontest.dto.AuthenticationRequest;
+import ru.prodcontest.dto.JwtAuthenticationResponse;
 import ru.prodcontest.dto.ReasonedError;
 import ru.prodcontest.dto.UserWithoutPassword;
 import ru.prodcontest.entity.User;
 import ru.prodcontest.repository.CountryRepository;
-import ru.prodcontest.repository.UserRepository;
+import ru.prodcontest.service.JwtService;
 import ru.prodcontest.service.UserService;
 
 @RestController
@@ -21,11 +25,17 @@ import ru.prodcontest.service.UserService;
 public class AuthController {
     private final UserService userService;
     private final CountryRepository countryRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public AuthController(UserService userService, CountryRepository countryRepository) {
+    public AuthController(UserService userService, CountryRepository countryRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.countryRepository = countryRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/register")
@@ -34,13 +44,13 @@ public class AuthController {
             return new ResponseEntity<>(new ReasonedError("user with this login credentials already exists"), HttpStatus.CONFLICT);
         }
 
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-
         ReasonedError error = validateUser(user);
+
         if (error != null) {
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
 
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.save(user);
 
         return new ResponseEntity<>(new UserWithoutPassword(
@@ -53,7 +63,29 @@ public class AuthController {
                         user.getImage())), HttpStatus.CREATED);
     }
 
-    ReasonedError validateUser(User user) {
+    @PostMapping("/sign-in")
+    private ResponseEntity<?> signIn(@RequestBody AuthenticationRequest authenticationRequest) {
+        if (authenticationRequest.getPassword() == null
+            || authenticationRequest.getLogin() == null) {
+            return new ResponseEntity<>(new ReasonedError("login or password is not present"), HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    authenticationRequest.getLogin(),
+                    authenticationRequest.getPassword()
+            ));
+        } catch (AuthenticationException e) {
+            return new ResponseEntity<>(new ReasonedError("incorrect login credentials"), HttpStatus.UNAUTHORIZED);
+        }
+
+        var user = (User) userService.userDetailsService().loadUserByUsername(authenticationRequest.getLogin());
+
+        String jwtToken = jwtService.generateAuthToken(user.getUsername());
+        return new ResponseEntity<>(new JwtAuthenticationResponse(jwtToken), HttpStatus.OK);
+    }
+
+    private ReasonedError validateUser(User user) {
         if (user.getLogin() == null || user.getPassword() == null
             || user.getEmail() == null || user.getCountryCode() == null) {
             return new ReasonedError("not all login credentials are present");
@@ -90,7 +122,7 @@ public class AuthController {
         return null;
     }
 
-    boolean checkUserNotExists(User user) {
+    private boolean checkUserNotExists(User user) {
         return !userService.existsByEmailOrPhoneOrLogin(user.getEmail(), user.getPhone(), user.getLogin());
 //            return new ReasonedError("user with this login credentials already exists");
     }

@@ -17,8 +17,8 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User save(User user) {
-        return userRepository.save(user);
+    public void save(User user) {
+        userRepository.save(user);
     }
 
     public boolean existsByEmailOrPhoneOrLogin(String email, String phone, String login) {
@@ -34,6 +34,7 @@ public class UserService {
         return this::getByLogin;
     }
 
+    @SuppressWarnings("unused")
     public User getCurrentUser() {
         var login = SecurityContextHolder.getContext().getAuthentication().getName();
         return getByLogin(login);
