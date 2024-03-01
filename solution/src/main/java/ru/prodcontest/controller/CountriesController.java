@@ -25,13 +25,13 @@ public class CountriesController {
 
     @GetMapping("/countries")
     public ResponseEntity<?> countries(@RequestParam(required = false) List<String> regions) {
+        if (regions == null || regions.isEmpty()) {
+            return new ResponseEntity<>((List<Country>) countryRepository.findAll(), HttpStatus.OK);
+        }
+
         for (String region : regions) {
             if (!isRegionValid(region))
                 return new ResponseEntity<>(new ReasonedError("region is invalid"), HttpStatus.BAD_REQUEST);
-        }
-
-        if (regions.isEmpty()) {
-            return new ResponseEntity<>((List<Country>) countryRepository.findAll(), HttpStatus.OK);
         }
 
         List<Country> countries = new ArrayList<>();
