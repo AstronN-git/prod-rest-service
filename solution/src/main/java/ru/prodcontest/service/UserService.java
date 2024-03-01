@@ -21,6 +21,10 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public boolean existsByLogin(String login) {
+        return userRepository.existsById(login);
+    }
+
     public boolean existsByEmailOrPhoneOrLogin(String email, String phone, String login) {
         return userRepository.existsByEmailOrPhoneOrLogin(email, phone, login);
     }

@@ -7,8 +7,7 @@ import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -35,6 +34,20 @@ public class User implements UserDetails {
     private String phone;
     private String image;
 
+    @ToString.Exclude
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Friend> friends = new HashSet<>();
+
+    public void addFriend(Friend friend) {
+        friends.add(friend);
+    }
+
+    public void removeFriend(Friend friend) {
+        if (!friends.contains(friend)) {
+            return;
+        }
+        friends.remove(friend);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
