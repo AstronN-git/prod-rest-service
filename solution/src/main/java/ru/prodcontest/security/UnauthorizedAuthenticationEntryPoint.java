@@ -7,7 +7,5 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 public class UnauthorizedAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
-        response.setStatus(401);
-    }
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {}
 }

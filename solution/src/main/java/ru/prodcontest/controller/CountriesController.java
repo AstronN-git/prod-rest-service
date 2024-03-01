@@ -8,6 +8,7 @@ import ru.prodcontest.dto.ReasonedError;
 import ru.prodcontest.entity.Country;
 import ru.prodcontest.repository.CountryRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class CountriesController {
     private final CountryRepository countryRepository;
+    private final List<String> regions = List.of("Europe", "Africa", "Americas", "Oceania", "Asia");
 
     @Autowired
     public CountriesController(CountryRepository countryRepository) {
@@ -22,12 +24,30 @@ public class CountriesController {
     }
 
     @GetMapping("/countries")
-    public List<Country> countries(@RequestParam(required = false) String region) {
-        if (region == null) {
-            return (List<Country>) countryRepository.findAll();
+    public ResponseEntity<?> countries(@RequestParam(required = false) List<String> regions) {
+        for (String region : regions) {
+            if (!isRegionValid(region))
+                return new ResponseEntity<>(new ReasonedError("region is invalid"), HttpStatus.BAD_REQUEST);
         }
 
-        return countryRepository.findCountriesByRegion(region);
+        if (regions.isEmpty()) {
+            return new ResponseEntity<>((List<Country>) countryRepository.findAll(), HttpStatus.OK);
+        }
+
+        List<Country> countries = new ArrayList<>();
+        for (String region : regions) {
+            countries.addAll(countryRepository.findCountriesByRegion(region));
+        }
+
+        return new ResponseEntity<>(countries, HttpStatus.OK);
+    }
+
+    private boolean isRegionValid(String region) {
+        for (String reg : regions)
+            if (region.equals(reg))
+                return true;
+
+        return false;
     }
 
     @GetMapping("/countries/{code}")

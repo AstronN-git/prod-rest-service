@@ -42,7 +42,7 @@ public class JwtService {
             var jwt = Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token);
             return isTokenExpired(jwt.getPayload());
         } catch (JwtException e) {
-            return false;
+            return true;
         }
     }
 
