@@ -19,6 +19,7 @@ import ru.prodcontest.entity.User;
 import ru.prodcontest.repository.CountryRepository;
 import ru.prodcontest.service.JwtService;
 import ru.prodcontest.service.UserService;
+import ru.prodcontest.util.Validation;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -111,15 +112,7 @@ public class AuthController {
             return new ReasonedError("country already taken");
         }
 
-        if (user.getPassword().length() < 6) {
-            return new ReasonedError("password is too short");
-        }
-
-        if (user.getPassword().length() > 100) {
-            return new ReasonedError("password is too long");
-        }
-
-        return null;
+        return Validation.validatePassword(user.getPassword());
     }
 
     private boolean checkUserNotExists(User user) {
