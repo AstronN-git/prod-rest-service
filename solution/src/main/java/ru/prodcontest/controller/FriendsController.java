@@ -70,11 +70,16 @@ public class FriendsController {
 
     @GetMapping("")
     public ResponseEntity<?> getFriends(
-            @RequestParam(required = false, defaultValue = "1000000000") Integer limit,
+            @RequestParam(required = false, defaultValue = "5") Integer limit,
             @RequestParam(required = false, defaultValue = "0") Integer offset
     ) {
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             return new ResponseEntity<>(new ReasonedError("authentication token is not present or incorrect"), HttpStatus.UNAUTHORIZED);
+        }
+
+        if (offset < 0 || limit > 50 || limit < 0) {
+            return new ResponseEntity<>(new ReasonedError("limit/offset is out of bound"),
+                    HttpStatus.BAD_REQUEST);
         }
 
         User user = userService.getCurrentUser();
