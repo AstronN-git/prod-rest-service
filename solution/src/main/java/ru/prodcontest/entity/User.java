@@ -38,6 +38,14 @@ public class User implements UserDetails {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Friend> friends = new HashSet<>();
 
+    @ToString.Exclude
+    @ElementCollection
+    private Set<UUID> likedPosts = new HashSet<>();
+
+    @ToString.Exclude
+    @ElementCollection
+    private Set<UUID> dislikedPosts = new HashSet<>();
+
     public void addFriend(Friend friend) {
         friends.add(friend);
     }
