@@ -38,12 +38,14 @@ public class FriendsController {
         }
 
         User currentUser = userService.getCurrentUser();
-        Friend friend = new Friend();
-        friend.setLogin(login.getLogin());
-        friend.setDateAdded(new Date());
-        friend.setUser(currentUser);
-        currentUser.addFriend(friend);
-        userService.save(currentUser);
+        if (friendRepository.findByLoginAndUser(login.getLogin(), currentUser) == null) {
+            Friend friend = new Friend();
+            friend.setLogin(login.getLogin());
+            friend.setDateAdded(new Date());
+            friend.setUser(currentUser);
+            currentUser.addFriend(friend);
+            userService.save(currentUser);
+        }
 
         return new ResponseEntity<>(new StatusResponse("ok"), HttpStatus.OK);
     }
@@ -60,6 +62,7 @@ public class FriendsController {
         if (friend != null) {
             currentUser.removeFriend(friend);
             userService.save(currentUser);
+            friendRepository.delete(friend);
         }
 
         return new ResponseEntity<>(new StatusResponse("ok"), HttpStatus.OK);

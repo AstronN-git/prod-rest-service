@@ -35,7 +35,7 @@ public class User implements UserDetails {
     private String image;
 
     @ToString.Exclude
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Friend> friends = new HashSet<>();
 
     public void addFriend(Friend friend) {

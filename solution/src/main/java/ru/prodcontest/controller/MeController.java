@@ -79,7 +79,7 @@ public class MeController {
         }
 
         if (updates.getCountryCode() != null) {
-            if (countryRepository.findCountryByAlpha2(updates.getCountryCode()).isEmpty())
+            if (countryRepository.findCountryByAlpha2IgnoreCase(updates.getCountryCode()).isEmpty())
                 return new ResponseEntity<>(new ReasonedError("invalid country code"), HttpStatus.BAD_REQUEST);
             user.setCountryCode(updates.getCountryCode());
         }

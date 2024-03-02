@@ -52,7 +52,7 @@ public class CountriesController {
 
     @GetMapping("/countries/{code}")
     public ResponseEntity<?> countryByAlpha2Code(@PathVariable String code) {
-        Optional<Country> country = countryRepository.findCountryByAlpha2(code);
+        Optional<Country> country = countryRepository.findCountryByAlpha2IgnoreCase(code);
 
         if (country.isEmpty())
             return new ResponseEntity<>(new ReasonedError("invalid country code"), HttpStatus.NOT_FOUND);

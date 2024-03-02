@@ -96,6 +96,14 @@ public class AuthController {
             return new ReasonedError("login should be 30 characters at most and contains only english letters, numbers and dash");
         }
 
+        if (user.getLogin().equals("my")) {
+            return new ReasonedError("login \"my\" is forbidden");
+        }
+
+        if (user.getLogin().isBlank()) {
+            return new ReasonedError("login couldn't be blank");
+        }
+
         if (user.getEmail().length() > 50) {
             return new ReasonedError("email is too long");
         }
@@ -108,7 +116,7 @@ public class AuthController {
             return new ReasonedError("image url is too long");
         }
 
-        if (countryRepository.findCountryByAlpha2(user.getCountryCode()).isEmpty()) {
+        if (countryRepository.findCountryByAlpha2IgnoreCase(user.getCountryCode()).isEmpty()) {
             return new ReasonedError("country already taken");
         }
 
