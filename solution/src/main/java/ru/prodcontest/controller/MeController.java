@@ -41,7 +41,6 @@ public class MeController {
         }
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println(username);
         User user = userService.getByLogin(username);
         return new ResponseEntity<>(
                 new UserWithoutPassword.Profile(
