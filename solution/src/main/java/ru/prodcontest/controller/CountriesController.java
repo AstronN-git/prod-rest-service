@@ -26,7 +26,7 @@ public class CountriesController {
     @GetMapping("/countries")
     public ResponseEntity<?> countries(@RequestParam(required = false) List<String> regions) {
         if (regions == null || regions.isEmpty()) {
-            return new ResponseEntity<>((List<Country>) countryRepository.findAll(), HttpStatus.OK);
+            return new ResponseEntity<>(countryRepository.findAllByOrderByAlpha2Asc(), HttpStatus.OK);
         }
 
         for (String region : regions) {

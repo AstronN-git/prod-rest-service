@@ -31,7 +31,9 @@ public class User implements UserDetails {
     @Column(name = "is_public")
     private Boolean isPublic;
 
+    @Column(unique = true)
     private String phone;
+
     private String image;
 
     @ToString.Exclude

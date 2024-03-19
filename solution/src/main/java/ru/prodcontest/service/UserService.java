@@ -25,8 +25,29 @@ public class UserService {
         return userRepository.existsById(login);
     }
 
+    public boolean existsByPhone(String phone) {
+        if (phone == null)
+            return false;
+
+        return userRepository.existsByPhone(phone);
+    }
+
+    public String getLoginByPhone(String phone) {
+        if (phone == null)
+            return null;
+
+        return userRepository.findUserByPhone(phone).getLogin();
+    }
+
     public boolean existsByEmailOrPhoneOrLogin(String email, String phone, String login) {
+        if (phone == null)
+            return existsByEmailOrLogin(email, login);
+
         return userRepository.existsByEmailOrPhoneOrLogin(email, phone, login);
+    }
+
+    private boolean existsByEmailOrLogin(String email, String login) {
+        return userRepository.existsByEmailOrLogin(email, login);
     }
 
     public User getByLogin(String login) {

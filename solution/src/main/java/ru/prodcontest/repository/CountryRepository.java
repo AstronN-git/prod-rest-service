@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface CountryRepository extends CrudRepository<Country, Long> {
     Optional<Country> findCountryByAlpha2IgnoreCase(String alpha2);
     List<Country> findCountriesByRegion(String region);
+    List<Country> findAllByOrderByAlpha2Asc();
 }

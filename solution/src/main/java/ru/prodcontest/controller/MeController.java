@@ -18,7 +18,7 @@ import ru.prodcontest.repository.CountryRepository;
 import ru.prodcontest.service.UserService;
 import ru.prodcontest.util.Validation;
 
-@RestController()
+@RestController
 @RequestMapping("/api/me")
 public class MeController {
     private final UserService userService;
@@ -41,6 +41,7 @@ public class MeController {
         }
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println(username);
         User user = userService.getByLogin(username);
         return new ResponseEntity<>(
                 new UserWithoutPassword.Profile(
@@ -69,18 +70,25 @@ public class MeController {
         if (updates.getPhone() != null) {
             if (!updates.getPhone().matches("\\+\\d+"))
                 return new ResponseEntity<>(new ReasonedError("wrong phone format"), HttpStatus.BAD_REQUEST);
+
+            if (userService.existsByPhone(updates.getPhone())
+                && !userService.getLoginByPhone(updates.getPhone()).equals(username))
+                return new ResponseEntity<>(new ReasonedError("phone already in use"), HttpStatus.CONFLICT);
+
             user.setPhone(updates.getPhone());
         }
 
         if (updates.getImage() != null) {
             if (updates.getImage().length() > 200)
                 return new ResponseEntity<>(new ReasonedError("phone is too long"), HttpStatus.BAD_REQUEST);
+
             user.setImage(updates.getImage());
         }
 
         if (updates.getCountryCode() != null) {
             if (countryRepository.findCountryByAlpha2IgnoreCase(updates.getCountryCode()).isEmpty())
                 return new ResponseEntity<>(new ReasonedError("invalid country code"), HttpStatus.BAD_REQUEST);
+
             user.setCountryCode(updates.getCountryCode());
         }
 
